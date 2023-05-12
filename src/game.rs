@@ -1,7 +1,9 @@
-use crate::{print::{self, get_input}, general::Player, board::{BoardBuilder, Board}, placement};
+use std::io;
 
-pub struct GameData {
+use crate::{print::{self, get_input}, general::Player, board::{BoardBuilder, Board}, placement, ui::{self, Term}};
 
+pub struct GameData<'a> {
+    term: &'a mut Term,
 }
 
 pub enum LoopState {
@@ -9,20 +11,19 @@ pub enum LoopState {
     Exit,
 }
 
-pub fn setup() -> GameData {
-    print::annouce_player(Player::One);
-    let _ = get_input();
+pub fn setup(term: &mut Term) -> io::Result<GameData> {
+    ui::render_turn(term, Player::One)?;
 
-    clearscr!();
-    let player_one_board = Board::builder()
+    let player_one_board = Board::builder(term)
         .add_destroyer()
         .add_cruiser()
         .add_submarine()
         .add_battleship()
         .add_carrier()
         .finish();
+    
 
-    GameData { }
+    Ok(GameData { term })
 }
 
 pub fn run(data: &GameData) -> LoopState {
