@@ -14,7 +14,12 @@ fn main() -> Result<(), io::Error> {
     // }
     let mut term = ui::setup_terminal()?;
 
-    let data = game::setup(&mut term)?;
+    let ships = [false; battleship::board::BOARD_TOTAL];
+    ui::render_board(&mut term, &ships)?;
+
+    battleship::input::get_key_input()?;
+
+    // let data = game::setup(&mut term)?;
 
     ui::destroy_terminal(term)?;
 

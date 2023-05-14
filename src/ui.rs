@@ -2,6 +2,8 @@ use crossterm::{terminal::{self, enable_raw_mode, disable_raw_mode}, ExecutableC
 use std::io::{self, Stdout};
 use tui::{backend::CrosstermBackend, layout, style, widgets, Terminal};
 
+use crate::board::{BOARD_TOTAL, BOARD_WIDTH};
+
 pub type Term = Terminal<CrosstermBackend<Stdout>>;
 
 pub fn setup_terminal() -> Result<Term, io::Error> {
@@ -69,6 +71,46 @@ pub fn render_turn(term: &mut Term, player: crate::general::Player) -> io::Resul
     })?;
 
     event::read()?;
+
+    Ok(())
+}
+
+pub fn render_board(term: &mut Term, ships: &[bool; BOARD_TOTAL]) -> io::Result<()> {
+    let mut out = String::new();
+    out += " 1 2 3 4 5 6 7 8 9 0\n";
+    for i in 0..BOARD_WIDTH {
+        let mut line = (('A' as u8 + i as u8) as char).to_string() + " ";
+        for j in 0..BOARD_WIDTH {
+            if ships[(i * BOARD_WIDTH) + j] {
+                line += "██";
+            } else {
+                line += ". ";
+            }
+        }
+        line += "\n";
+        out += &line;
+    }
+
+    term.draw(|f| {
+        let height = f.size().height;
+        let upper_board;
+        let lower_board;
+        if height > 22 {
+            let extra_space = height - 22;
+            let third_approx = extra_space / 3;
+            upper_board = layout::Rect::new(0, third_approx, f.size().width, 11);
+            lower_board = layout::Rect::new(0, height - third_approx - 11, f.size().width, 11);
+        } else {
+            upper_board = layout::Rect::new(0, 0, f.size().width, 11);
+            lower_board = layout::Rect::new(0, height - 11, f.size().width, 11);
+        }
+        let p = widgets::Paragraph::new(out)
+            .alignment(layout::Alignment::Center)
+            .block(widgets::Block::default().borders(widgets::Borders::ALL));
+        let p2 = p.clone();
+        f.render_widget(p, upper_board);
+        f.render_widget(p2, lower_board);
+    })?;
 
     Ok(())
 }

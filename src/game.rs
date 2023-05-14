@@ -1,6 +1,12 @@
 use std::io;
 
-use crate::{print::{self, get_input}, general::Player, board::{BoardBuilder, Board}, placement, ui::{self, Term}};
+use crate::{
+    board::{Board, BoardBuilder},
+    general::Player,
+    placement,
+    print::{self, get_input},
+    ui::{self, Term},
+};
 
 pub struct GameData<'a> {
     term: &'a mut Term,
@@ -21,7 +27,6 @@ pub fn setup(term: &mut Term) -> io::Result<GameData> {
         .add_battleship()
         .add_carrier()
         .finish();
-    
 
     Ok(GameData { term })
 }
@@ -31,4 +36,3 @@ pub fn run(data: &GameData) -> LoopState {
 
     LoopState::Exit
 }
-
