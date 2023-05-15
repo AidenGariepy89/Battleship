@@ -27,7 +27,7 @@ impl<'a> BoardBuilder<'a> {
         }
     }
     pub fn add_carrier(mut self) -> BoardBuilder<'a> {
-        let ship = placement::place_piece(&self.ships, 5);
+        let ship = placement::place_piece(&self.ships, &mut self.term, 5).unwrap();
 
         for pos in ship {
             self.ships[pos] = true;
@@ -36,7 +36,7 @@ impl<'a> BoardBuilder<'a> {
         self
     }
     pub fn add_battleship(mut self) -> BoardBuilder<'a> {
-        let ship = placement::place_piece(&self.ships, 4);
+        let ship = placement::place_piece(&self.ships, &mut self.term, 4).unwrap();
 
         for pos in ship {
             self.ships[pos] = true;
@@ -45,7 +45,7 @@ impl<'a> BoardBuilder<'a> {
         self
     }
     pub fn add_cruiser(mut self) -> BoardBuilder<'a>{
-        let ship = placement::place_piece(&self.ships, 3);
+        let ship = placement::place_piece(&self.ships, &mut self.term, 3).unwrap();
 
         for pos in ship {
             self.ships[pos] = true;
@@ -54,7 +54,7 @@ impl<'a> BoardBuilder<'a> {
         self
     }
     pub fn add_submarine(mut self) -> BoardBuilder<'a> {
-        let ship = placement::place_piece(&self.ships, 3);
+        let ship = placement::place_piece(&self.ships, &mut self.term, 3).unwrap();
 
         for pos in ship {
             self.ships[pos] = true;
@@ -63,7 +63,7 @@ impl<'a> BoardBuilder<'a> {
         self
     }
     pub fn add_destroyer(mut self) -> BoardBuilder<'a> {
-        let ship = placement::place_piece(&self.ships, 2);
+        let ship = placement::place_piece(&self.ships, &mut self.term, 2).unwrap();
 
         for pos in ship {
             self.ships[pos] = true;

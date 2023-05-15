@@ -14,15 +14,34 @@ fn main() -> Result<(), io::Error> {
     // }
     let mut term = ui::setup_terminal()?;
 
-    let ships = [false; battleship::board::BOARD_TOTAL];
-    ui::render_board(&mut term, &ships)?;
+    // let ships = [false; battleship::board::BOARD_TOTAL];
+    // ui::render_board(&mut term, &ships)?;
 
-    battleship::input::get_key_input()?;
+    // battleship::input::get_key_input()?;
 
-    // let data = game::setup(&mut term)?;
+    let data = game::setup(&mut term)?;
 
     ui::destroy_terminal(term)?;
 
     Ok(())
 }
 // std::thread::sleep(std::time::Duration::from_millis(1000));
+
+fn test() -> io::Result<()> {
+    use battleship::input;
+    use battleship::input::KeyAction;
+    loop {
+        let result = input::get_key_input()?;
+        if let Some(key) = result {
+            match key {
+                KeyAction::Up => println!("Up"),
+                KeyAction::Down => println!("Down"),
+                KeyAction::Right => println!("Right"),
+                KeyAction::Left => println!("Right"),
+                _ => { break; }
+            }
+        }
+    }
+    Ok(())
+}
+

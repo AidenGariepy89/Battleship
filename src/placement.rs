@@ -1,6 +1,8 @@
 use crate::{
     board::{BOARD_TOTAL, BOARD_WIDTH},
+    input::{self, KeyAction},
     print::{self, get_input},
+    ui::{self, Term},
 };
 
 fn init_place(length: usize) -> Vec<usize> {
@@ -31,83 +33,83 @@ fn init_place(length: usize) -> Vec<usize> {
     ship
 }
 
-pub fn place_piece(board: &[bool; BOARD_TOTAL], length: usize) -> Vec<usize> {
+pub fn place_piece(
+    ships: &[bool; BOARD_TOTAL],
+    term: &mut Term,
+    length: usize,
+) -> std::io::Result<Vec<usize>> {
     assert!(length != 0);
 
     let mut ship = init_place(length);
 
     loop {
-        let mut board = *board;
+        let mut board = *ships;
         for pos in &ship {
             board[*pos] = true;
         }
-        clearscr!();
-        print::print_board(&board);
+        // clearscr!();
+        // print::print_board(&board);
+        ui::render_board(term, &board)?;
 
-        let input = get_input().to_lowercase();
-        let input = input.trim();
-
-        match input {
-            "j" => {
-                let mut can_move = true;
-                for pos in ship.iter() {
-                    if *pos >= BOARD_TOTAL - BOARD_WIDTH {
-                        can_move = false;
+        let result = input::get_key_input()?;
+        if let Some(key) = result {
+            match key {
+                KeyAction::Down => {
+                    let mut can_move = true;
+                    for pos in ship.iter() {
+                        if *pos >= BOARD_TOTAL - BOARD_WIDTH {
+                            can_move = false;
+                        }
+                    }
+                    if can_move {
+                        for pos in ship.iter_mut() {
+                            *pos += BOARD_WIDTH;
+                        }
                     }
                 }
-                if can_move {
-                    for pos in ship.iter_mut() {
-                        *pos += BOARD_WIDTH;
+                KeyAction::Up => {
+                    let mut can_move = true;
+                    for pos in ship.iter() {
+                        if *pos < BOARD_WIDTH {
+                            can_move = false;
+                        }
+                    }
+                    if can_move {
+                        for pos in ship.iter_mut() {
+                            *pos -= BOARD_WIDTH;
+                        }
                     }
                 }
+                KeyAction::Right => {
+                    let mut can_move = true;
+                    for pos in ship.iter() {
+                        if *pos % BOARD_WIDTH >= BOARD_WIDTH - 1 {
+                            can_move = false;
+                        }
+                    }
+                    if can_move {
+                        for pos in ship.iter_mut() {
+                            *pos += 1;
+                        }
+                    }
+                }
+                KeyAction::Left => {
+                    let mut can_move = true;
+                    for pos in ship.iter() {
+                        if *pos % BOARD_WIDTH == 0 {
+                            can_move = false;
+                        }
+                    }
+                    if can_move {
+                        for pos in ship.iter_mut() {
+                            *pos -= 1;
+                        }
+                    }
+                }
+                _ => { break; }
             }
-            "k" => {
-                let mut can_move = true;
-                for pos in ship.iter() {
-                    if *pos < BOARD_WIDTH {
-                        can_move = false;
-                    }
-                }
-                if can_move {
-                    for pos in ship.iter_mut() {
-                        *pos -= BOARD_WIDTH;
-                    }
-                }
-            }
-            "l" => {
-                let mut can_move = true;
-                for pos in ship.iter() {
-                    if *pos % BOARD_WIDTH >= BOARD_WIDTH - 1 {
-                        can_move = false;
-                    }
-                }
-                if can_move {
-                    for pos in ship.iter_mut() {
-                        *pos += 1;
-                    }
-                }
-            }
-            "h" => {
-                let mut can_move = true;
-                for pos in ship.iter() {
-                    if *pos % BOARD_WIDTH == 0 {
-                        can_move = false;
-                    }
-                }
-                if can_move {
-                    for pos in ship.iter_mut() {
-                        *pos -= 1;
-                    }
-                }
-            }
-            "r" => {
-            }
-            "y" => {
-                break;
-            }
-            _ => {}
         }
     }
 
-    ship
+    Ok(ship)
 }

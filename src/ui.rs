@@ -105,8 +105,8 @@ pub fn render_board(term: &mut Term, ships: &[bool; BOARD_TOTAL]) -> io::Result<
             lower_board = layout::Rect::new(0, height - 11, f.size().width, 11);
         }
         let p = widgets::Paragraph::new(out)
-            .alignment(layout::Alignment::Center)
-            .block(widgets::Block::default().borders(widgets::Borders::ALL));
+            .alignment(layout::Alignment::Center);
+            // .block(widgets::Block::default().borders(widgets::Borders::ALL));
         let p2 = p.clone();
         f.render_widget(p, upper_board);
         f.render_widget(p2, lower_board);
