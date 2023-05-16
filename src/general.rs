@@ -4,6 +4,7 @@ pub enum Marker {
     Hit,
 }
 
+#[derive(Clone, Copy)]
 pub enum Player {
     One,
     Two,

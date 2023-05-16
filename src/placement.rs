@@ -43,7 +43,7 @@ pub fn place_piece(ships: &[bool; BOARD_TOTAL], term: &mut Term, length: usize) 
             board[*pos] = true;
         }
 
-        ui::render_single_board(term, &board)?;
+        ui::render_clean_board(term, &board)?;
 
         let result = input::get_key_input()?;
         if let Some(key) = result {

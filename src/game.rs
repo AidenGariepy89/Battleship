@@ -3,13 +3,27 @@ use std::io;
 use crate::{
     board::Board,
     general::Player,
-    ui::{self, Term},
+    ui::{self, Term}, input::KeyAction,
 };
 
 pub struct GameData<'a> {
-    term: &'a mut Term,
-    player_one: Board,
-    player_two: Board,
+    pub term: &'a mut Term,
+    pub player_one: Board,
+    pub player_two: Board,
+    pub turn: Player,
+}
+
+impl<'a> GameData<'a> {
+    pub fn next_turn(&mut self) {
+        match self.turn {
+            Player::One => {
+                self.turn = Player::Two;
+            }
+            Player::Two => {
+                self.turn = Player::One;
+            }
+        }
+    }
 }
 
 pub enum LoopState {
@@ -36,11 +50,19 @@ pub fn setup(term: &mut Term) -> io::Result<GameData> {
         .add_carrier()
         .finish();
 
-    Ok(GameData { term, player_one, player_two })
+    Ok(GameData { term, player_one, player_two, turn: Player::One })
 }
 
-pub fn run(data: &mut GameData) -> LoopState {
-    println!("Run function!");
+pub fn run(data: &mut GameData) -> io::Result<LoopState> {
+    ui::render_board(data)?;
 
-    LoopState::Exit
+    let result = crate::input::get_key_input()?;
+    if let Some(KeyAction::Cancel) = result {
+        return Ok(LoopState::Exit);
+    }
+
+    data.next_turn();
+
+    Ok(LoopState::Continue)
 }
+

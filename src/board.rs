@@ -9,8 +9,8 @@ pub struct BoardBuilder<'a> {
 }
 
 pub struct Board {
-    marks: [ Option<Marker>; BOARD_TOTAL ],
-    ships: [ bool; BOARD_TOTAL ],
+    pub marks: [ Option<Marker>; BOARD_TOTAL ],
+    pub ships: [ bool; BOARD_TOTAL ],
 }
 
 impl Board {
@@ -72,7 +72,10 @@ impl<'a> BoardBuilder<'a> {
         self
     }
     pub fn finish(&self) -> Board {
-        Board { marks: [ None; BOARD_TOTAL ], ships: self.ships }
+        let mut marks = [ None; BOARD_TOTAL ];
+        marks[0] = Some(Marker::Hit);
+        marks[1] = Some(Marker::Miss);
+        Board { marks, ships: self.ships }
     }
 }
 

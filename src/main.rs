@@ -11,7 +11,7 @@ fn main() -> Result<(), io::Error> {
     let mut state = LoopState::Continue;
 
     while let LoopState::Continue = state {
-        state = game::run(&mut data);
+        state = game::run(&mut data)?;
     }
 
     ui::destroy_terminal(term)?;
