@@ -115,3 +115,29 @@ pub fn render_board(term: &mut Term, ships: &[bool; BOARD_TOTAL]) -> io::Result<
     Ok(())
 }
 
+pub fn render_single_board(term: &mut Term, ships: &[bool; BOARD_TOTAL]) -> io::Result<()> {
+    let mut out = String::new();
+    out += " 1 2 3 4 5 6 7 8 9 0\n";
+    for i in 0..BOARD_WIDTH {
+        let mut line = (('A' as u8 + i as u8) as char).to_string() + " ";
+        for j in 0..BOARD_WIDTH {
+            if ships[(i * BOARD_WIDTH) + j] {
+                line += "██";
+            } else {
+                line += ". ";
+            }
+        }
+        line += "\n";
+        out += &line;
+    }
+
+    term.draw(|f| {
+        let spacing = (f.size().height - 11) / 2;
+        let board = layout::Rect::new(0, spacing, f.size().width, 11);
+        let p = widgets::Paragraph::new(out).alignment(layout::Alignment::Center);
+        f.render_widget(p, board);
+    })?;
+
+    Ok(())
+}
+

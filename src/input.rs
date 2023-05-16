@@ -29,6 +29,12 @@ pub fn get_key_input() -> io::Result<Option<KeyAction>> {
         if event == KeyCode::Char('l').into() {
             return Ok(Some(KeyAction::Right));
         }
+        if event == KeyCode::Char('r').into() {
+            return Ok(Some(KeyAction::Rotate));
+        }
+        if event == KeyCode::Char('y').into() {
+            return Ok(Some(KeyAction::Place));
+        }
     }
     Ok(None)
 }

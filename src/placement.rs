@@ -1,7 +1,6 @@
 use crate::{
     board::{BOARD_TOTAL, BOARD_WIDTH},
     input::{self, KeyAction},
-    print::{self, get_input},
     ui::{self, Term},
 };
 
@@ -33,11 +32,7 @@ fn init_place(length: usize) -> Vec<usize> {
     ship
 }
 
-pub fn place_piece(
-    ships: &[bool; BOARD_TOTAL],
-    term: &mut Term,
-    length: usize,
-) -> std::io::Result<Vec<usize>> {
+pub fn place_piece(ships: &[bool; BOARD_TOTAL], term: &mut Term, length: usize) -> std::io::Result<Vec<usize>> {
     assert!(length != 0);
 
     let mut ship = init_place(length);
@@ -47,9 +42,8 @@ pub fn place_piece(
         for pos in &ship {
             board[*pos] = true;
         }
-        // clearscr!();
-        // print::print_board(&board);
-        ui::render_board(term, &board)?;
+
+        ui::render_single_board(term, &board)?;
 
         let result = input::get_key_input()?;
         if let Some(key) = result {
@@ -106,7 +100,10 @@ pub fn place_piece(
                         }
                     }
                 }
-                _ => { break; }
+                KeyAction::Place => {
+                    break;
+                }
+                _ => {}
             }
         }
     }
