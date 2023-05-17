@@ -3,12 +3,11 @@ use crossterm::{
     ExecutableCommand,
 };
 use std::io::{self, Stdout};
-use tui::{backend::CrosstermBackend, layout, style, widgets, Terminal};
+use tui::{backend::CrosstermBackend, layout, style::{Color, Style}, widgets, Terminal};
 
 use crate::{
-    board::{BOARD_TOTAL, BOARD_WIDTH},
+    board::{BOARD_TOTAL, BOARD_WIDTH, self},
     game::GameData,
-    general::{Marker, Player},
 };
 
 pub type Term = Terminal<CrosstermBackend<Stdout>>;
@@ -68,7 +67,7 @@ pub fn render_turn(term: &mut Term, player: crate::general::Player) -> io::Resul
             crate::general::Player::Two => line.clone() + "\nPlayer Two\n" + &line,
         };
         let message = widgets::Paragraph::new(message)
-            .style(style::Style::default().fg(style::Color::Yellow))
+            .style(Style::default().fg(Color::Yellow))
             .alignment(layout::Alignment::Center);
         f.render_widget(message, area);
     })?;
@@ -77,93 +76,7 @@ pub fn render_turn(term: &mut Term, player: crate::general::Player) -> io::Resul
 }
 
 pub fn render_board(data: &mut GameData) -> io::Result<()> {
-    let mut screen1 = String::new();
-    let mut screen2 = String::new();
-    screen1 += " 1 2 3 4 5 6 7 8 9 0\n";
-    screen2 += " 1 2 3 4 5 6 7 8 9 0\n";
-    match data.turn {
-        Player::One => {
-            for i in 0..BOARD_WIDTH {
-                let mut line1 = (('A' as u8 + i as u8) as char).to_string() + " ";
-                let mut line2 = (('A' as u8 + i as u8) as char).to_string() + " ";
-                for j in 0..BOARD_WIDTH {
-                    if let Some(mark) = data.player_one.marks[(i * BOARD_WIDTH) + j] {
-                        match mark {
-                            Marker::Miss => {
-                                line2 += "X ";
-                            }
-                            Marker::Hit => {
-                                line2 += "# ";
-                            }
-                        }
-                    } else {
-                        if data.player_one.ships[(i * BOARD_WIDTH) + j] {
-                            line2 += "██";
-                        } else {
-                            line2 += ". ";
-                        }
-                    }
-                    if let Some(mark) = data.player_two.marks[(i * BOARD_WIDTH) + j] {
-                        match mark {
-                            Marker::Miss => {
-                                line1 += "X ";
-                            }
-                            Marker::Hit => {
-                                line1 += "# ";
-                            }
-                        }
-                    } else {
-                        line1 += ". ";
-                    }
-                }
-                line1 += "\n";
-                screen1 += &line1;
-                line2 += "\n";
-                screen2 += &line2;
-            }
-        }
-        Player::Two => {
-            for i in 0..BOARD_WIDTH {
-                let mut line1 = (('A' as u8 + i as u8) as char).to_string() + " ";
-                let mut line2 = (('A' as u8 + i as u8) as char).to_string() + " ";
-                for j in 0..BOARD_WIDTH {
-                    if let Some(mark) = data.player_two.marks[(i * BOARD_WIDTH) + j] {
-                        match mark {
-                            Marker::Miss => {
-                                line2 += "X ";
-                            }
-                            Marker::Hit => {
-                                line2 += "# ";
-                            }
-                        }
-                    } else {
-                        if data.player_two.ships[(i * BOARD_WIDTH) + j] {
-                            line2 += "██";
-                        } else {
-                            line2 += ". ";
-                        }
-                    }
-                    if let Some(mark) = data.player_one.marks[(i * BOARD_WIDTH) + j] {
-                        match mark {
-                            Marker::Miss => {
-                                line1 += "X ";
-                            }
-                            Marker::Hit => {
-                                line1 += "# ";
-                            }
-                        }
-                    } else {
-                        line1 += ". ";
-                    }
-                }
-                line1 += "\n";
-                screen1 += &line1;
-                line2 += "\n";
-                screen2 += &line2;
-            }
-
-        }
-    }
+    let (screen1, screen2) = board::draw_board(data);
 
     data.term.draw(|f| {
         let height = f.size().height;
