@@ -1,5 +1,4 @@
 use crossterm::{
-    event,
     terminal::{self, disable_raw_mode, enable_raw_mode},
     ExecutableCommand,
 };
@@ -7,7 +6,7 @@ use std::io::{self, Stdout};
 use tui::{backend::CrosstermBackend, layout, style, widgets, Terminal};
 
 use crate::{
-    board::{Board, BOARD_TOTAL, BOARD_WIDTH},
+    board::{BOARD_TOTAL, BOARD_WIDTH},
     game::GameData,
     general::{Marker, Player},
 };
@@ -74,30 +73,10 @@ pub fn render_turn(term: &mut Term, player: crate::general::Player) -> io::Resul
         f.render_widget(message, area);
     })?;
 
-    event::read()?;
-
     Ok(())
 }
 
-// pub fn render_board(
-//     term: &mut Term,
-//     player_one: &Board,
-//     player_two: &Board,
-//     turn: Player,
 pub fn render_board(data: &mut GameData) -> io::Result<()> {
-    let screen1 = " 1 2 3 4 5 6 7 8 9 0
-A . . . . . . . . . .
-B . . . . . . . . . .
-C . . . . . . . . . .
-D . . . . . . . . . .
-E . . . . . . . . . .
-F . . . . . . . . . .
-G . . . . . . . . . .
-H . . . . . . . . . .
-I . . . . . . . . . .
-J . . . . . . . . . .
-        "
-    .to_string();
     let mut screen1 = String::new();
     let mut screen2 = String::new();
     screen1 += " 1 2 3 4 5 6 7 8 9 0\n";
@@ -111,51 +90,78 @@ J . . . . . . . . . .
                     if let Some(mark) = data.player_one.marks[(i * BOARD_WIDTH) + j] {
                         match mark {
                             Marker::Miss => {
-                                line1 += "# ";
+                                line2 += "X ";
                             }
                             Marker::Hit => {
-                                line1 += "X ";
+                                line2 += "# ";
                             }
                         }
                     } else {
                         if data.player_one.ships[(i * BOARD_WIDTH) + j] {
-                            line1 += "██";
+                            line2 += "██";
                         } else {
-                            line1 += ". ";
+                            line2 += ". ";
                         }
                     }
                     if let Some(mark) = data.player_two.marks[(i * BOARD_WIDTH) + j] {
                         match mark {
                             Marker::Miss => {
-                                line2 += "# ";
+                                line1 += "X ";
                             }
                             Marker::Hit => {
-                                line2 += "X ";
+                                line1 += "# ";
                             }
                         }
                     } else {
-                        line2 += ". ";
+                        line1 += ". ";
                     }
                 }
                 line1 += "\n";
-                screen2 += &line1;
+                screen1 += &line1;
                 line2 += "\n";
-                screen1 += &line2;
+                screen2 += &line2;
             }
         }
         Player::Two => {
             for i in 0..BOARD_WIDTH {
+                let mut line1 = (('A' as u8 + i as u8) as char).to_string() + " ";
                 let mut line2 = (('A' as u8 + i as u8) as char).to_string() + " ";
                 for j in 0..BOARD_WIDTH {
-                    if data.player_two.ships[(i * BOARD_WIDTH) + j] {
-                        line2 += "██";
+                    if let Some(mark) = data.player_two.marks[(i * BOARD_WIDTH) + j] {
+                        match mark {
+                            Marker::Miss => {
+                                line2 += "X ";
+                            }
+                            Marker::Hit => {
+                                line2 += "# ";
+                            }
+                        }
                     } else {
-                        line2 += ". ";
+                        if data.player_two.ships[(i * BOARD_WIDTH) + j] {
+                            line2 += "██";
+                        } else {
+                            line2 += ". ";
+                        }
+                    }
+                    if let Some(mark) = data.player_one.marks[(i * BOARD_WIDTH) + j] {
+                        match mark {
+                            Marker::Miss => {
+                                line1 += "X ";
+                            }
+                            Marker::Hit => {
+                                line1 += "# ";
+                            }
+                        }
+                    } else {
+                        line1 += ". ";
                     }
                 }
+                line1 += "\n";
+                screen1 += &line1;
                 line2 += "\n";
                 screen2 += &line2;
             }
+
         }
     }
 

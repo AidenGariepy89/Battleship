@@ -72,10 +72,7 @@ impl<'a> BoardBuilder<'a> {
         self
     }
     pub fn finish(&self) -> Board {
-        let mut marks = [ None; BOARD_TOTAL ];
-        marks[0] = Some(Marker::Hit);
-        marks[1] = Some(Marker::Miss);
-        Board { marks, ships: self.ships }
+        Board { marks: [ None; BOARD_TOTAL ], ships: self.ships }
     }
 }
 
