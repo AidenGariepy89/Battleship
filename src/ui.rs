@@ -1,13 +1,20 @@
 use crossterm::{
-    terminal::{self, disable_raw_mode, enable_raw_mode},
+    terminal::{self, disable_raw_mode, enable_raw_mode, Clear},
     ExecutableCommand,
 };
 use std::io::{self, Stdout};
-use tui::{backend::CrosstermBackend, layout, style::{Color, Style}, widgets, Terminal};
+use tui::{
+    backend::CrosstermBackend,
+    layout,
+    style::{Color, Style},
+    text::Span,
+    widgets::{self, Borders},
+    Terminal,
+};
 
 use crate::{
-    board::{BOARD_TOTAL, BOARD_WIDTH, self},
-    game::GameData,
+    board::{self, BOARD_TOTAL, BOARD_WIDTH},
+    game::GameData, general::Player,
 };
 
 pub type Term = Terminal<CrosstermBackend<Stdout>>;
@@ -23,7 +30,13 @@ pub fn setup_terminal() -> Result<Term, io::Error> {
     Ok(terminal)
 }
 
-pub fn destroy_terminal(mut terminal: Term) -> Result<(), io::Error> {
+pub fn clear(term: &mut Term) -> io::Result<()> {
+    term.backend_mut()
+        .execute(Clear(terminal::ClearType::All))?;
+    Ok(())
+}
+
+pub fn destroy_terminal(mut terminal: Term) -> io::Result<()> {
     disable_raw_mode()?;
 
     terminal
@@ -121,6 +134,49 @@ pub fn render_clean_board(term: &mut Term, ships: &[bool; BOARD_TOTAL]) -> io::R
         let board = layout::Rect::new(0, spacing, f.size().width, 11);
         let p = widgets::Paragraph::new(out).alignment(layout::Alignment::Center);
         f.render_widget(p, board);
+    })?;
+
+    Ok(())
+}
+
+pub fn render_result(term: &mut Term, hit: bool) -> io::Result<()> {
+    let message = if hit {
+        Span::styled("Hit!", Style::default().fg(Color::Red))
+    } else {
+        Span::styled("Miss!", Style::default().fg(Color::Green))
+    };
+
+    term.draw(|f| {
+        let y_margin = f.size().height - 3;
+        let x_margin = f.size().width - 20;
+        let area = layout::Rect::new(x_margin / 2, y_margin / 2, 20, 3);
+        let p = widgets::Paragraph::new(message)
+            .alignment(layout::Alignment::Center)
+            .block(widgets::Block::default().borders(Borders::ALL));
+        f.render_widget(p, area);
+    })?;
+
+    Ok(())
+}
+
+pub fn render_victory(term: &mut Term, player: Player) -> io::Result<()> {
+    let message = match player {
+        Player::One => {
+            Span::styled("Player One Wins!", Style::default().fg(Color::Green))
+        }
+        Player::Two => {
+            Span::styled("Player Two Wins!", Style::default().fg(Color::Green))
+        }
+    };
+
+    term.draw(|f| {
+        let y_margin = f.size().height - 3;
+        let x_margin = f.size().width - 20;
+        let area = layout::Rect::new(x_margin / 2, y_margin / 2, 20, 3);
+        let p = widgets::Paragraph::new(message)
+            .alignment(layout::Alignment::Center)
+            .block(widgets::Block::default().borders(Borders::ALL));
+        f.render_widget(p, area);
     })?;
 
     Ok(())

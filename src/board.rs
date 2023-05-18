@@ -26,6 +26,21 @@ impl Board {
     pub fn builder<'a>(term: &'a mut ui::Term) -> BoardBuilder<'a> {
         BoardBuilder::new(term)
     }
+    pub fn check_for_lose(&self) -> bool {
+        let mut ships_down = 0;
+        for (coord, is_ship) in self.ships.iter().enumerate() {
+            if *is_ship {
+                if let Some(Marker::Hit) = self.marks[coord] {
+                    ships_down += 1;
+                }
+            }
+        }
+
+        if ships_down == 17 {
+            return true;
+        }
+        false
+    }
 }
 
 impl<'a> BoardBuilder<'a> {
